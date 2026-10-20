@@ -76,7 +76,7 @@ Lo arma `scripts/build_puntos.mjs` después del export (`make export` lo corre).
 
 | Posición | Campo | Nota |
 |---|---|---|
-| 0, 1 | x, y | Centro del distrito (o de la provincia o el departamento si no hay distrito) en el plano de 420 px de ancho de los mapas de puntos, con un ruido fijo para separar obras del mismo lugar |
+| 0, 1 | x, y | Un punto dentro del distrito (o de la provincia o el departamento si no hay distrito) en el plano de 420 px de ancho de los mapas de puntos, con un ruido fijo para separar obras del mismo lugar. Nunca cae fuera de su zona ni de su departamento (`web/interior.js`) |
 | 2 | avance | Entero 0-100; -1 sin dato |
 | 3 | causa | 0 incumplimiento de contrato, 1 falta de recursos, 2 arbitraje, 3 expediente técnico, 4 abandono, 5 otra |
 | 4 | inicio | Año de inicio menos 2000; 0 sin dato |
@@ -84,6 +84,7 @@ Lo arma `scripts/build_puntos.mjs` después del export (`make export` lo corre).
 | 6 | nombre | Recortado a 70 caracteres |
 | 7 | distrito | |
 | 8 | nivel | L local, R regional, N nacional |
+| 9 | cui | Código Único de Inversiones; con él se arman los enlaces al SSI y al seguimiento (formato 12-B) del MEF |
 
 ## Geodatos
 

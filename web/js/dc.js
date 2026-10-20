@@ -1,4 +1,4 @@
-// Runtime de las páginas de Obra Parada.
+// Runtime de las páginas de Obra Paralizada.
 //
 // Cada página trae dos cosas:
 //   <template id="vista">   el HTML con huecos {{a.b}}, listas <template sc-for> y condicionales <template sc-if>

@@ -94,7 +94,7 @@ def cmd_export(args) -> int:
 
 
 def main(argv=None) -> int:
-    p = argparse.ArgumentParser(prog="obra-parada")
+    p = argparse.ArgumentParser(prog="obra-paralizada")
     sub = p.add_subparsers(dest="cmd", required=True)
 
     i = sub.add_parser("ingest", help="descarga/lee el Anexo 01 y lo deja en data/staging")

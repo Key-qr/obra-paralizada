@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Obra Parada · Servicios de control</title>
+<title>Obra Paralizada · Servicios de control</title>
 <meta name="description" content="Los 4,386 servicios de control de la Contraloría a las obras paralizadas: tipos, años, órganos, obras más revisadas e informes.">
-<meta property="og:title" content="Obra Parada · Servicios de control">
+<meta property="og:title" content="Obra Paralizada · Servicios de control">
 <meta property="og:description" content="Los 4,386 servicios de control de la Contraloría a las obras paralizadas: tipos, años, órganos, obras más revisadas e informes.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="vendor/fonts.css" rel="stylesheet">
@@ -134,6 +134,8 @@ header nav.sub{padding-left:16px!important;padding-right:16px!important}
 header nav.sub a{flex:0 0 auto}
 }
 /* menú compartido con el Explorador */
+:root { accent-color: #17457a; scrollbar-color: #5d6468 #d3d5d2; }
+::selection { background: #e9a21a; color: #1f2326; }
 .site-head { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; }
 .site-head .brand { display: inline-flex; align-items: center; gap: 8px; font: 800 24px/1 "Barlow Condensed", "Arial Narrow", sans-serif; color: #1f2326; text-decoration: none; }
 .site-head .brand svg { width: 30px; height: 30px; fill: none; stroke: #1f2326; stroke-width: 2.2; }
@@ -173,9 +175,9 @@ header nav.sub a{flex:0 0 auto}
 <div class="prog" aria-hidden="true"></div>
 <header style="position: sticky; top: 0; z-index: 40; background: rgba(227, 228, 225, 0.93); backdrop-filter: blur(8px); border-bottom: 1.5px solid #1f2326">
   <div class="site-head">
-    <a class="brand" href="index.html" aria-label="Obra Parada, ir a la portada">
+    <a class="brand" href="index.html" aria-label="Obra Paralizada, ir a la portada">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="17" rx="1.5"/><path d="M9 22v7M23 22v7"/><path d="M8 13h16" class="brand-bar"/></svg>
-      Obra Parada
+      Obra Paralizada
     </a>
     <nav class="view-tabs" aria-label="Bases de datos">
       <a href="index.html">Obras paralizadas</a>
@@ -283,7 +285,7 @@ header nav.sub a{flex:0 0 auto}
           <div class="brow"><span style="font-size: 14.5px">{{c.n}}</span><span class="track" aria-hidden="true"><i class="grow" style="width: {{c.w}}%; background: {{c.bg}}"></i></span><span style="text-align: right; font: 700 17px 'Barlow Condensed', sans-serif">{{c.v}}</span></div>
         </template>
       </div>
-      <p class="note" style="margin: 12px 0 0; font-size: 14px">Las obras en arbitraje son las más revisadas (74%); las paradas por falta de plata, de las menos (44%).</p>
+      <p class="note" style="margin: 12px 0 0; font-size: 14px">Las obras en arbitraje son las más revisadas (74%); las paralizadas por falta de presupuesto, de las menos (44%).</p>
     </div>
   </div>
 </section>

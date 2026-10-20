@@ -1,11 +1,9 @@
-// Obra Parada: todo se calcula en el navegador a partir de data/*.json.
+// Obra Paralizada: todo se calcula en el navegador a partir de data/*.json.
 // Sin backend: los filtros recalculan agregados sobre ~2,500 filas al vuelo.
 import { reduced, scramble, decodeOnView, countTo, readingProgress, revealOnView, makeTerminal, scrollSteps } from "./motion.js";
 import { createDots } from "./dots.js";
 import { TIPOS, tipoDe, renderTipos, bindTipos, renderRecords, renderTimeline, renderGob, initCompare } from "./sections.js";
 import { initControl, setFiltros } from "./control.js";
-import { crearIndice, buscarObras, palabras } from "./buscar.js";
-import { centros, posiciones, crearEtiquetas } from "./lugares.js";
 
 const NIVELES = {
   departamento: { key: "u_dep", geo: "data/geo/departamentos.json", label: "Departamento" },
@@ -34,10 +32,6 @@ let GEO = {};          // nivel -> FeatureCollection
 let ZONES = {};        // nivel -> Map(ubigeo -> {nombre, padre, bbox})
 let map;
 let breaks = [];
-let CENTRO = {};       // nivel -> Map(ubigeo -> centro visible)
-let POS = new Map();   // índice de obra -> [lng, lat]
-let INDICE = [];
-let etiquetas = () => {};
 
 function cssVar(name) {
   return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -53,6 +47,10 @@ function soles(v) {
   if (v >= 1e3) return `S/ ${nf.format(Math.round(v / 1e3))} mil`;
   return `S/ ${nf.format(Math.round(v))}`;
 }
+// Monto de una obra: algunas vienen de la fuente con costo y saldo en cero; mostrar "S/ 0" daría a
+// entender que no falta nada, así que se dice que no hay monto reportado.
+const sinMonto = (o) => !(o.saldo > 0) && !(o.costo > 0);
+function saldoObra(o, fmt = solesCorto) { return sinMonto(o) ? "Sin monto reportado" : fmt(o.saldo); }
 function solesCorto(v) {
   if (v == null) return "–";
   if (v >= 1e9) return `S/ ${nf1.format(v / 1e9)} mil M`;
@@ -238,112 +236,8 @@ function initMap() {
     }
     // Bordes de departamento siempre visibles como referencia.
     map.addLayer({ id: "dep-ref", type: "line", source: "departamento", paint: { "line-color": "#f4f5f3", "line-width": 1.4 } });
-    initPuntos();
     resolve();
   }));
-}
-
-
-// ---------- obras como puntos y nombres de lugares ----------
-// Al acercarse (un departamento o más cerca) cada obra aparece como un punto dentro de su distrito,
-// y salen los nombres de las provincias o distritos que tienen obras, sin encimarse.
-function puntosGeo(rows) {
-  return {
-    type: "FeatureCollection",
-    features: rows.filter((o) => POS.has(o._i)).map((o) => ({
-      type: "Feature", id: o._i,
-      properties: { i: o._i, s: Math.sqrt(o.saldo || 0), casi: (o.avance ?? 0) >= 90 ? 1 : 0 },
-      geometry: { type: "Point", coordinates: POS.get(o._i) },
-    })),
-  };
-}
-let obraMarcada = null, popup = null;
-function initPuntos() {
-  map.addSource("obras", { type: "geojson", data: puntosGeo(OBRAS) });
-  map.addLayer({
-    id: "obras-pt", type: "circle", source: "obras", minzoom: 5.3,
-    paint: {
-      "circle-radius": ["interpolate", ["linear"], ["zoom"],
-        5.3, ["interpolate", ["linear"], ["get", "s"], 0, 1.6, 20000, 5],
-        8, ["interpolate", ["linear"], ["get", "s"], 0, 3.2, 20000, 10],
-        10, ["interpolate", ["linear"], ["get", "s"], 0, 4.5, 20000, 13]],
-      // Blancos sobre el mapa azul; ámbar las que están al 90% o más.
-      "circle-color": ["case", ["boolean", ["feature-state", "marca"], false], cssVar("--ambar"), ["==", ["get", "casi"], 1], cssVar("--ambar"), "#ffffff"],
-      "circle-stroke-color": "#1f2326",
-      "circle-stroke-width": ["case", ["boolean", ["feature-state", "marca"], false], 3, 1.1],
-      "circle-opacity": ["interpolate", ["linear"], ["zoom"], 5.3, 0, 5.8, 0.9],
-      "circle-stroke-opacity": ["interpolate", ["linear"], ["zoom"], 5.3, 0, 5.8, 1],
-    },
-  });
-  const tip = document.getElementById("tooltip");
-  map.on("mousemove", "obras-pt", (e) => {
-    const f = e.features[0];
-    if (!f) return;
-    map.getCanvas().style.cursor = "pointer";
-    obraTip(OBRAS[f.properties.i], e.originalEvent.clientX, e.originalEvent.clientY);
-  });
-  map.on("mouseleave", "obras-pt", () => { map.getCanvas().style.cursor = ""; tip.hidden = true; });
-  // El clic en un punto abre la ficha y no selecciona la zona de abajo.
-  map.on("click", (e) => {
-    if (state.tresD || map.getZoom() < 5.6) return;
-    const f = map.queryRenderedFeatures(e.point, { layers: ["obras-pt"] })[0];
-    if (f) openObra(f.properties.i);
-  });
-  etiquetas = (() => {
-    const pintar = crearEtiquetas(maplibregl, map);
-    return () => {
-      const z = map.getZoom();
-      // Nombres de distritos al acercarse (o si elegiste una provincia o un distrito); antes, de provincias.
-      const fino = z >= 6.6 || (z >= 5.6 && state.sel && state.sel.nivel !== "departamento");
-      const nivel = state.tresD ? null : fino ? "distrito" : z >= 5.6 ? "provincia" : null;
-      if (!nivel) { pintar([]); return; }
-      const agg = aggregate(filtered(), nivel);
-      // Primero los lugares de la zona elegida (si eliges La Libertad, sus distritos van antes que los de al lado).
-      const pref = state.sel ? state.sel.ubigeo : "";
-      const items = [...agg].map(([u, a]) => ({ u, a, c: CENTRO[nivel].get(u)?.c, mio: pref && u.startsWith(pref) ? 1 : 0 }))
-        .filter((x) => x.c)
-        .sort((x, y) => y.mio - x.mio || y.a.saldo - x.a.saldo)
-        .map((x) => ({ key: nivel + x.u, c: x.c, nombre: esc(ZONES[nivel].get(x.u)?.nombre || ""), sub: nf.format(x.a.obras),
-          title: `${x.a.obras} ${x.a.obras === 1 ? "obra" : "obras"}, falta ${solesCorto(x.a.saldo)}` }));
-      pintar(items);
-    };
-  })();
-  map.on("moveend", () => etiquetas());
-}
-
-// Lleva el mapa a una obra: su zona, el punto marcado y un globo con su nombre.
-function irAObra(o) {
-  const z = (o.u_dist && ZONES.distrito.get(o.u_dist)?.bbox && ["distrito", o.u_dist])
-    || (o.u_prov && ZONES.provincia.get(o.u_prov)?.bbox && ["provincia", o.u_prov])
-    || (o.u_dep && ["departamento", o.u_dep]);
-  document.querySelector(".map-layout").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
-  if (state.tresD) document.getElementById("btn-3d").click();
-  // Si el mapa estaba escondido (búsqueda desde la portada), recién ahora tiene tamaño.
-  map.resize();
-  if (z) select(z[0], z[1], { fit: false });
-  // Se centra en la obra (un poco abajo del centro, para que el globo quepa arriba) con el zoom de su zona.
-  const box = z && (ZONES[z[0]].get(z[1])?.bbox);
-  const cam = box ? map.cameraForBounds(box, { padding: 50, maxZoom: z[0] === "distrito" ? 10 : 8.5 }) : null;
-  if (POS.has(o._i)) map.flyTo({ center: POS.get(o._i), zoom: cam ? cam.zoom : map.getZoom(), offset: [0, Math.min(120, map.getContainer().clientHeight * 0.22)], duration: reduced ? 0 : 900 });
-  marcarObra(o);
-}
-function marcarObra(o) {
-  if (obraMarcada != null) map.setFeatureState({ source: "obras", id: obraMarcada }, { marca: false });
-  if (popup) { popup.remove(); popup = null; }
-  obraMarcada = null;
-  if (!o || !POS.has(o._i)) return;
-  obraMarcada = o._i;
-  map.setFeatureState({ source: "obras", id: o._i }, { marca: true });
-  const el = document.createElement("div");
-  el.className = "obra-pop";
-  el.innerHTML = `<b>${esc(o.nombre.length > 110 ? o.nombre.slice(0, 108) + "…" : o.nombre)}</b>
-    <span>${esc([o.dist, o.prov].filter(Boolean).join(", "))} · falta ${solesCorto(o.saldo)} · ${o.avance != null ? `${nf1.format(o.avance)}% construida` : "avance sin dato"}</span>
-    <button type="button" class="btn btn-sm btn-solid">Ver la ficha</button>`;
-  el.querySelector("button").addEventListener("click", () => openObra(o._i));
-  const ancho = Math.min(320, map.getContainer().clientWidth - 32);
-  popup = new maplibregl.Popup({ closeButton: true, closeOnClick: false, focusAfterOpen: false, maxWidth: `${ancho}px`, offset: 14, anchor: "bottom" })
-    .setLngLat(POS.get(o._i)).setDOMContent(el).addTo(map);
-  popup.on("close", () => { if (obraMarcada === o._i) { map.setFeatureState({ source: "obras", id: o._i }, { marca: false }); obraMarcada = null; } popup = null; });
 }
 
 let hovered = null;
@@ -373,14 +267,12 @@ function bindLayer(nivel) {
     tip.hidden = true;
   });
   map.on("click", layer, (e) => {
-    // Si el clic cayó en el punto de una obra, manda la obra (abre su ficha) y no la zona.
-    if (!state.tresD && map.getZoom() >= 5.6 && map.queryRenderedFeatures(e.point, { layers: ["obras-pt"] }).length) return;
     const f = e.features[0];
     if (f) select(nivel, f.id, { fit: false });
   });
 }
 
-// Tarjeta del tooltip: totales de la zona, cuánto pesa en el país y su obra más cara.
+// Tarjeta del tooltip: totales de la zona, cuánto pesa en el país y su obra con mayor monto pendiente.
 let tipCache = { key: "", rows: [] };
 function zoneTip(nivel, id, z, st) {
   const head = `<b>${esc(z?.nombre)}</b>${z?.padre ? `<span class="t-sub">${esc(z.padre)}</span>` : ""}`;
@@ -397,7 +289,7 @@ function zoneTip(nivel, id, z, st) {
     <span class="t-row"><span>${nf.format(st.obras)} ${st.obras === 1 ? "obra" : "obras"}</span><strong>${solesCorto(st.saldo)}</strong></span>
     <span class="t-share"><i style="width:${Math.max(2, Math.min(100, share * 4))}%"></i></span>
     <span class="t-note">${share < 0.1 ? "menos de 0.1" : nf1.format(share)}% de lo que falta ejecutar en el país${casi ? `, ${casi} a un paso de terminar` : ""}</span>
-    ${top ? `<span class="t-top">La más cara: ${esc(top.nombre.length > 70 ? top.nombre.slice(0, 68) + "…" : top.nombre)}</span>` : ""}`;
+    ${top ? `<span class="t-top"><b>#1 en monto pendiente:</b> ${esc(top.nombre.length > 70 ? top.nombre.slice(0, 68) + "…" : top.nombre)}</span>` : ""}`;
 }
 
 // ---------- resaltados cruzados (lista, causas, entidades -> mapa) ----------
@@ -458,9 +350,6 @@ function setLayerVisibility() {
     map.setLayoutProperty(`${nivel}-3d`, "visibility", nivel === state.nivel && state.tresD ? "visible" : "none");
   }
   map.setLayoutProperty("dep-ref", "visibility", state.tresD ? "none" : "visible");
-  // En 3D los puntos quedarían debajo de los bloques.
-  if (map.getLayer("obras-pt")) map.setLayoutProperty("obras-pt", "visibility", state.tresD ? "none" : "visible");
-  etiquetas();
 }
 
 function paintMap(rows) {
@@ -547,8 +436,6 @@ function select(nivel, ubigeo, { fit = true } = {}) {
 function render() {
   const rows = filtered();
   paintMap(rows);
-  map.getSource("obras")?.setData(puntosGeo(rows));
-  etiquetas();
   const scope = inSelection(rows);
   renderZone(scope);
   renderCausas(scope);
@@ -581,7 +468,7 @@ function obraItem(o, showPlace = true) {
   const place = showPlace ? [o.dist, o.prov, o.dep].filter(Boolean)[0] : "";
   return `<li><button type="button" data-i="${o._i}">
     <span class="o-name">${esc(o.nombre)}</span>
-    <span class="o-amount">${solesCorto(o.saldo)}</span>
+    <span class="o-amount">${saldoObra(o)}</span>
     <span class="o-meta"><span class="o-bar" aria-hidden="true"><i style="width:${o.avance ?? 0}%"></i></span>
       ${o.avance != null ? `${nf1.format(o.avance)}% de avance` : "Avance sin dato"}${place ? `, ${esc(place)}` : ""}</span>
   </button></li>`;
@@ -651,8 +538,8 @@ function openObra(i) {
   set("d-entidad", `${titulo(o.entidad || "Entidad sin dato")}. Gobierno ${String(o.nivel || "").toLowerCase()}`);
   set("d-nombre", o.nombre);
   set("d-lugar", [o.dist, o.prov, o.dep].filter(Boolean).join(", ") || "Sin dato");
-  set("d-costo", soles(o.costo));
-  set("d-saldo", soles(o.saldo));
+  set("d-costo", o.costo > 0 ? soles(o.costo) : "Sin monto reportado");
+  set("d-saldo", saldoObra(o, soles));
   set("d-avance", o.avance != null ? `${nf1.format(o.avance)}%` : "Sin dato");
   document.getElementById("d-meter").style.width = `${o.avance ?? 0}%`;
   set("d-fecha", o.ini ? `${o.ini}${o.antig != null ? `, hace ${o.antig} ${o.antig === 1 ? "año" : "años"}` : ""}${o.plazo ? `. Plazo previsto: ${nf.format(o.plazo)} días` : ""}` : "Sin dato");
@@ -671,119 +558,77 @@ function openObra(i) {
   set("d-sector", o.sector || "Sin dato");
   set("d-id", o.id || "Sin dato");
   set("d-cui", o.cui || "Sin dato");
+  // Con el CUI se arman los enlaces del MEF: la ficha del SSI y el seguimiento (formato 12-B).
+  const cui = /^\d{5,}$/.test(String(o.cui || "")) ? String(o.cui) : "";
+  document.getElementById("d-mef-box").hidden = !cui;
+  document.getElementById("d-mef").innerHTML = cui ? `
+    <a class="mef-link" href="https://ofi5.mef.gob.pe/ssi/Ssi/Index?codigo=${cui}&tipo=2" target="_blank" rel="noopener">Ver más en el SSI <span aria-hidden="true">↗</span></a>
+    <a class="mef-link" href="https://ofi5.mef.gob.pe/invierteWS/Repseguim/ResumF12B?codigo=${cui}" target="_blank" rel="noopener">Seguimiento de la inversión <span aria-hidden="true">↗</span></a>` : "";
   const dlg = document.getElementById("obra-dialog");
   if (!dlg.open) dlg.showModal();
   else { dlg.classList.remove("swap"); void dlg.offsetWidth; dlg.classList.add("swap"); }
 }
 
 // ---------- búsqueda ----------
-// Un solo buscador para lugares y obras: "Huanchaco", "puente Iquitos", "colegio Cusco",
-// un código Infobras o un CUI. Hay uno en la portada y otro encima del mapa.
 function initSearch() {
+  const input = document.getElementById("q");
+  const list = document.getElementById("q-list");
   const counts = { departamento: aggregate(OBRAS, "departamento"), provincia: aggregate(OBRAS, "provincia"), distrito: aggregate(OBRAS, "distrito") };
-  const lugares = [];
+  const index = [];
   for (const nivel of Object.keys(NIVELES)) {
     for (const [ubigeo, z] of ZONES[nivel]) {
-      lugares.push({ nivel, ubigeo, nombre: z.nombre, padre: z.padre, n: norm(z.nombre), obras: counts[nivel].get(ubigeo)?.obras || 0 });
+      index.push({ nivel, ubigeo, nombre: z.nombre, padre: z.padre, n: norm(z.nombre), obras: counts[nivel].get(ubigeo)?.obras || 0 });
     }
   }
   const rank = { departamento: 0, provincia: 1, distrito: 2 };
-  const buscarLugares = (q) => {
-    const full = norm(q);
-    const ws = palabras(q).filter((w) => w.length >= 3);
-    const hit = (r) => r.n.includes(full) || (ws.length > 1 && ws.some((w) => r.n.split(" ").some((p) => p.startsWith(w))));
-    return lugares.filter(hit)
-      .sort((a, b) => (b.n.startsWith(full) - a.n.startsWith(full)) || (b.obras > 0) - (a.obras > 0) || (rank[a.nivel] - rank[b.nivel]) || a.n.localeCompare(b.n))
-      .slice(0, 4);
-  };
-  document.querySelectorAll("[data-buscador]").forEach((box) => buscador(box, buscarLugares));
-}
-
-function buscador(box, buscarLugares) {
-  const input = box.querySelector("input");
-  const list = box.querySelector("[role=listbox]");
-  let items = [], active = -1, verTodas = false, t = 0;
-  const corto = (s, n) => (s.length > n ? s.slice(0, n - 1) + "…" : s);
+  let results = [], active = -1;
 
   function show() {
-    const q = input.value.trim();
-    if (norm(q).length < 2) { close(); return; }
-    const ls = buscarLugares(q);
-    const r = buscarObras(INDICE, q, verTodas ? 60 : 8);
-    items = [...ls.map((l) => ({ tipo: "lugar", l })), ...r.obras.map((o) => ({ tipo: "obra", o }))];
-    active = items.length ? 0 : -1;
-    let html = "";
-    if (ls.length) {
-      html += `<li class="q-head" role="presentation">Lugares</li>` + ls.map((l, i) => `<li role="option" id="${input.id}-${i}" data-i="${i}">
-        <span>${esc(l.nombre)}${l.padre ? `, <span class="fine">${esc(l.padre)}</span>` : ""}</span>
-        <small>${NIVELES[l.nivel].label}, ${l.obras ? `${nf.format(l.obras)} ${l.obras === 1 ? "obra" : "obras"}` : "sin obras"}</small></li>`).join("");
-    }
-    if (r.obras.length) {
-      html += `<li class="q-head" role="presentation">${r.aviso ? esc(r.aviso) : `Obras <span>${nf.format(r.total)}</span>`}</li>`
-        + r.obras.map((o, k) => {
-          const i = ls.length + k;
-          return `<li role="option" class="q-obra" id="${input.id}-${i}" data-i="${i}">
-            <span>${esc(corto(o.nombre, 110))}<span class="fine">${esc([o.dist, o.prov, o.dep].filter(Boolean).join(", "))}</span></span>
-            <small>${solesCorto(o.saldo)}<br>${o.avance != null ? `${nf1.format(o.avance)}%` : "–"}</small></li>`;
-        }).join("");
-      if (r.total > r.obras.length) html += `<li class="q-more" role="presentation"><button type="button" data-todas>Ver ${verTodas ? "más" : "todas"} (${nf.format(r.total)})</button></li>`;
-    }
-    if (!html) html = `<li class="empty">No encontramos lugares ni obras con eso. Prueba con el distrito, la provincia o una palabra del nombre de la obra (puente, colegio, agua…).</li>`;
-    list.innerHTML = html;
+    const q = norm(input.value);
+    if (q.length < 2) { close(); return; }
+    results = index
+      .filter((r) => r.n.includes(q))
+      .sort((a, b) => (b.n.startsWith(q) - a.n.startsWith(q)) || (rank[a.nivel] - rank[b.nivel]) || a.n.localeCompare(b.n))
+      .slice(0, 12);
+    active = results.length ? 0 : -1;
+    list.innerHTML = results.length
+      ? results.map((r, i) => `<li role="option" id="q-${i}" aria-selected="${i === active}" data-i="${i}">
+          <span>${esc(r.nombre)}${r.padre ? `, <span class="fine">${esc(r.padre)}</span>` : ""}</span>
+          <small>${NIVELES[r.nivel].label}, ${r.obras ? `${nf.format(r.obras)} ${r.obras === 1 ? "obra" : "obras"}` : "sin obras"}</small></li>`).join("")
+      : `<li class="empty">No encontramos ese lugar. Prueba sin tildes o con otro nombre.</li>`;
     list.hidden = false;
-    marcar();
     input.setAttribute("aria-expanded", "true");
+    input.setAttribute("aria-activedescendant", active >= 0 ? `q-${active}` : "");
   }
-  function marcar() {
-    list.querySelectorAll("[data-i]").forEach((li) => li.setAttribute("aria-selected", Number(li.dataset.i) === active));
-    input.setAttribute("aria-activedescendant", active >= 0 ? `${input.id}-${active}` : "");
-  }
-  function close() { list.hidden = true; verTodas = false; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); }
+  function close() { list.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); }
   function choose(i) {
-    const it = items[i];
-    if (!it) return;
+    const r = results[i];
+    if (!r) return;
+    input.value = r.nombre;
     close();
-    if (it.tipo === "lugar") {
-      input.value = it.l.nombre;
-      document.querySelector(".map-layout").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
-      marcarObra(null);
-      map.resize();
-      select(it.l.nivel, it.l.ubigeo);
-    } else {
-      input.value = it.o.nombre;
-      irAObra(it.o);
-    }
+    document.getElementById("mapa").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
+    select(r.nivel, r.ubigeo);
   }
   function move(d) {
-    if (!items.length) return;
-    active = (active + d + items.length) % items.length;
-    marcar();
-    list.querySelector(`[data-i="${active}"]`)?.scrollIntoView({ block: "nearest" });
+    if (!results.length) return;
+    active = (active + d + results.length) % results.length;
+    [...list.children].forEach((li, i) => li.setAttribute("aria-selected", i === active));
+    input.setAttribute("aria-activedescendant", `q-${active}`);
+    list.children[active].scrollIntoView({ block: "nearest" });
   }
 
-  input.addEventListener("input", () => { verTodas = false; clearTimeout(t); t = setTimeout(show, 90); });
-  input.addEventListener("focus", () => {
-    // En celular el teclado tapa media pantalla: el buscador sube para que la lista quepa debajo.
-    if (matchMedia("(max-width: 700px)").matches) setTimeout(() => {
-      // En la portada el gráfico queda pegado arriba: el buscador se ubica justo debajo de él.
-      const vis = input.closest(".story") && document.querySelector(".story-vis");
-      const tope = vis && getComputedStyle(vis).position === "sticky" ? vis.getBoundingClientRect().bottom + 8 : 70;
-      scrollTo({ top: input.getBoundingClientRect().top + scrollY - tope, behavior: reduced ? "auto" : "smooth" });
-    }, 250);
-    if (input.value.trim().length >= 2) show();
-  });
+  input.addEventListener("input", show);
   input.addEventListener("keydown", (e) => {
     if (e.key === "ArrowDown") { e.preventDefault(); move(1); }
     else if (e.key === "ArrowUp") { e.preventDefault(); move(-1); }
-    else if (e.key === "Enter") { e.preventDefault(); clearTimeout(t); if (list.hidden) show(); else choose(active); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active); }
     else if (e.key === "Escape") close();
   });
   list.addEventListener("mousedown", (e) => {
-    if (e.target.closest("[data-todas]")) { e.preventDefault(); verTodas = true; show(); return; }
     const li = e.target.closest("li[data-i]");
     if (li) { e.preventDefault(); choose(Number(li.dataset.i)); }
   });
-  input.addEventListener("blur", () => setTimeout(close, 150));
+  input.addEventListener("blur", () => setTimeout(close, 120));
 }
 
 // ---------- controles ----------
@@ -831,7 +676,7 @@ function initControls() {
     if (VIEW === "control") showView("obras", { keepScroll: false });
     const nivel = o.u_dist && ZONES.distrito.get(o.u_dist)?.bbox ? "distrito" : o.u_prov ? "provincia" : "departamento";
     const id = nivel === "distrito" ? o.u_dist : nivel === "provincia" ? o.u_prov : o.u_dep;
-    document.querySelector(".map-layout").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    document.getElementById("mapa").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
     select(nivel, id);
   });
   initZoneActions();
@@ -960,7 +805,7 @@ function initHovers() {
         <span class="p-name">${esc(o.nombre)}</span>
         <span class="p-grid">
           <span><small>Costo</small>${solesCorto(o.costo)}</span>
-          <span><small>Falta</small>${solesCorto(o.saldo)}</span>
+          <span><small>Falta</small>${saldoObra(o)}</span>
           <span><small>Empezó en</small>${anio(o.ini)}</span>
         </span>
         <span class="p-meter"><i style="width:${o.avance ?? 0}%"></i></span>
@@ -1057,7 +902,7 @@ function initHovers() {
     sel.value = row.dataset.causal;
     sel.dispatchEvent(new Event("change", { bubbles: true }));
     hidePeek();
-    document.querySelector(".map-layout").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
+    document.getElementById("mapa").scrollIntoView({ behavior: reduced ? "auto" : "smooth" });
   };
   document.getElementById("bars-causal").addEventListener("click", (e) => { const r = e.target.closest("[data-causal]"); if (r) filtrarCausa(r); });
   document.getElementById("bars-causal").addEventListener("keydown", (e) => {
@@ -1175,7 +1020,7 @@ function obraTip(o, x, y) {
   const lugar = [o.dist, o.prov, o.dep].filter(Boolean).join(", ");
   tip.innerHTML = `<b>${esc(o.nombre.length > 90 ? o.nombre.slice(0, 88) + "…" : o.nombre)}</b>
     <span class="t-sub">${esc(lugar)}</span>
-    <span class="t-row"><span>Falta ejecutar</span><strong>${solesCorto(o.saldo)}</strong></span>
+    <span class="t-row"><span>Falta ejecutar</span><strong>${saldoObra(o)}</strong></span>
     <span class="t-share"><i style="width:${o.avance ?? 0}%"></i></span>
     <span class="t-note">${o.avance != null ? `${nf1.format(o.avance)}% construida` : "Avance sin dato"}${o.ini ? `, empezó en ${o.ini}` : ""}. ${esc(o.causal || "")}. Clic para ver la ficha.</span>`;
   tip.hidden = false;
@@ -1196,7 +1041,7 @@ function initTicker() {
   const top = [...OBRAS].sort((a, b) => (b.saldo || 0) - (a.saldo || 0)).slice(0, 30);
   const item = (o) => `<button type="button" class="ticker-item" data-i="${o._i}">
     <span>${esc(o.nombre.length > 64 ? o.nombre.slice(0, 62) + "…" : o.nombre)}</span>
-    <small>${esc(o.dist || o.prov || o.dep || "")}</small><b>${solesCorto(o.saldo)}</b>
+    <small>${esc(o.dist || o.prov || o.dep || "")}</small><b>${saldoObra(o)}</b>
     <small>${o.ini ? `empezó en ${o.ini}` : ""}</small></button>`;
   // Dos copias seguidas para que el bucle no tenga corte.
   track.innerHTML = top.map(item).join("") + `<span aria-hidden="true" style="display:contents">${top.map(item).join("")}</span>`;
@@ -1359,7 +1204,7 @@ function initPipeline(meta, resumen) {
   const flow = [...document.querySelectorAll("#flow li")];
   const lines = pipelineLines(meta, resumen);
   scrollSteps([...document.querySelectorAll(".pipe .step")], (i) => {
-    document.getElementById("term-title").textContent = `obra-parada: ${titles[i]}`;
+    document.getElementById("term-title").textContent = `obra-paralizada: ${titles[i]}`;
     flow.forEach((li, j) => { li.classList.toggle("is-done", j < i); li.classList.toggle("is-active", j === i); });
     term.play(lines[i]);
   });
@@ -1388,7 +1233,7 @@ function showView(view, { keepScroll = true } = {}) {
   VIEW = view;
   document.body.dataset.view = view;
   document.querySelectorAll("[data-view]").forEach((a) => a.setAttribute("aria-current", a.dataset.view === view ? "page" : "false"));
-  document.title = view === "control" ? "Servicios de control · Obra Parada" : "Obra Parada · obras públicas paralizadas en el Perú";
+  document.title = view === "control" ? "Servicios de control · Obra Paralizada" : "Obra Paralizada · obras públicas paralizadas en el Perú";
 }
 
 function route() {
@@ -1417,9 +1262,6 @@ function verControles(id) {
     readingProgress(document.getElementById("progress-bar"));
     const { resumen, meta } = await load();
     META = meta;
-    CENTRO = centros(GEO);
-    POS = posiciones(OBRAS, CENTRO);
-    INDICE = crearIndice(OBRAS);
     renderHero(resumen, meta);
     addEventListener("hashchange", route);
     route();

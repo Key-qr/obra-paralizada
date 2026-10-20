@@ -3,12 +3,13 @@
 //   node scripts/build_puntos.mjs
 //
 // Fila: [x, y, avance (-1 sin dato), causa 0-5, año de inicio - 2000 (0 sin dato),
-//        falta ejecutar en millones (0 sin saldo), nombre, distrito, nivel L/R/N]
+//        falta ejecutar en millones (0 sin saldo), nombre, distrito, nivel L/R/N, CUI]
 // x, y están en el mismo plano de 420 px de ancho que usan los mapas de puntos.
 import { readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { puntoInterior, puntoCerca, dentro } from '../web/interior.js';
 
 const require = createRequire(import.meta.url);
 const topo = require('topojson-client');
@@ -29,17 +30,13 @@ deps.features.forEach((f) => recorrer(f.geometry.coordinates, ([x, y]) => {
 const k = Math.cos(((y0 + y1) / 2) * Math.PI / 180), ANCHO = 420, sc = ANCHO / ((x1 - x0) * k);
 const P = ([x, y]) => [(x - x0) * k * sc, (y1 - y) * sc];
 
-// centro aproximado de cada zona: promedio de los vértices de su anillo más grande
-const centro = (g) => {
-  const polys = g.type === 'Polygon' ? [g.coordinates] : g.coordinates;
-  const anillo = polys.map((p) => p[0]).sort((a, b) => b.length - a.length)[0];
-  let cx = 0, cy = 0;
-  anillo.forEach(([a, b]) => { cx += a; cy += b; });
-  return P([cx / anillo.length, cy / anillo.length]);
-};
+// centro de cada zona: un punto que cae dentro de ella (ver web/interior.js), en el plano de 420 px
 const C = {};
 for (const nivel of ['distritos', 'provincias', 'departamentos']) {
-  capa(nivel).features.forEach((f) => { if (f.geometry) C[f.properties.ubigeo] = centro(f.geometry); });
+  capa(nivel).features.forEach((f) => {
+    const z = f.geometry && puntoInterior(f.geometry);
+    if (z) C[f.properties.ubigeo] = { c: P(z.c), anillo: z.anillo.map(P), w: z.w * k * sc, h: z.h * sc };
+  });
 }
 
 const o = leer('web/data/obras.json');
@@ -60,18 +57,26 @@ const titulo = (n) => String(n || '').toLowerCase().replace(/(^|\s)\S/g, (m) => 
 const out = {};
 let sinLugar = 0;
 for (const x of obras.sort((a, b) => (b.saldo || 0) - (a.saldo || 0))) {
-  const c = C[x.u_dist] || C[x.u_prov] || C[x.u_dep];
-  if (!c) { sinLugar++; continue; }
+  const z = C[x.u_dist] || C[x.u_prov] || C[x.u_dep];
+  if (!z) { sinLugar++; continue; }
   const j = C[x.u_dist] ? 3 : 10;
   const ci = CAUSAS.indexOf(x.causal);
+  // un poco de ruido para separar obras del mismo lugar, sin salirse de su zona ni de su departamento
+  const q = puntoCerca(z, j / 2, azar, C[x.u_dep]?.anillo);
+  // al redondear al pixel un punto pegado a la costa puede caer al mar: se prueba el pixel vecino
+  const marco = C[x.u_dep]?.anillo || z.anillo;
+  const p = [[0, 0], [1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]]
+    .map(([dx, dy]) => [Math.round(q[0]) + dx, Math.round(q[1]) + dy]).find((r) => dentro(r, marco)) || q.map(Math.round);
   (out[x.u_dep] = out[x.u_dep] || []).push([
-    Math.round(c[0] + (azar() - 0.5) * j), Math.round(c[1] + (azar() - 0.5) * j),
+    p[0], p[1],
     x.avance == null ? -1 : Math.round(x.avance),
     ci < 0 ? 5 : ci,
     x.ini ? x.ini - 2000 : 0,
     // 4 decimales en millones (S/ 100) y un mínimo para que los saldos pequeños no queden en cero
     x.saldo > 0 ? Math.max(0.0001, +(x.saldo / 1e6).toFixed(4)) : 0,
     corto(x.nombre), titulo(x.dist || x.prov || ''), NIVEL[x.nivel] || 'L',
+    // CUI: con él se arman los enlaces al Seguimiento de Inversiones del MEF
+    /^\d{5,}$/.test(String(x.cui || '')) ? String(x.cui) : '',
   ]);
 }
 writeFileSync(join(ROOT, 'web/data/obras_por_depto.json'), JSON.stringify(out));

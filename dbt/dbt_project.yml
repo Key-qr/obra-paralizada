@@ -1,7 +1,7 @@
-name: obra_parada
+name: obra_paralizada
 version: "1.0.0"
 config-version: 2
-profile: obra_parada
+profile: obra_paralizada
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
@@ -17,7 +17,7 @@ vars:
   control_parquet: "../data/staging/control.parquet"
 
 models:
-  obra_parada:
+  obra_paralizada:
     staging:
       +materialized: view
     intermediate:
@@ -26,7 +26,7 @@ models:
       +materialized: table
 
 seeds:
-  obra_parada:
+  obra_paralizada:
     dim_departamento:
       +column_types:
         ubigeo_dep: varchar

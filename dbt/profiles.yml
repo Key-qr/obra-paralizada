@@ -1,4 +1,4 @@
-obra_parada:
+obra_paralizada:
   target: local
   outputs:
     local:

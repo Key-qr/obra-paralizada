@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Obra Parada · Comparar</title>
+<title>Obra Paralizada · Comparar</title>
 <meta name="description" content="Compara dos departamentos: obras, dinero pendiente, avance, presupuesto, servicios de control y cada obra como un punto.">
-<meta property="og:title" content="Obra Parada · Comparar">
+<meta property="og:title" content="Obra Paralizada · Comparar">
 <meta property="og:description" content="Compara dos departamentos: obras, dinero pendiente, avance, presupuesto, servicios de control y cada obra como un punto.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="vendor/fonts.css" rel="stylesheet">
@@ -124,6 +124,8 @@ header nav.sub{padding-left:16px!important;padding-right:16px!important}
 header nav.sub a{flex:0 0 auto}
 }
 /* menú compartido con el Explorador */
+:root { accent-color: #17457a; scrollbar-color: #5d6468 #d3d5d2; }
+::selection { background: #e9a21a; color: #1f2326; }
 .site-head { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; }
 .site-head .brand { display: inline-flex; align-items: center; gap: 8px; font: 800 24px/1 "Barlow Condensed", "Arial Narrow", sans-serif; color: #1f2326; text-decoration: none; }
 .site-head .brand svg { width: 30px; height: 30px; fill: none; stroke: #1f2326; stroke-width: 2.2; }
@@ -163,9 +165,9 @@ header nav.sub a{flex:0 0 auto}
 <div class="prog" aria-hidden="true"></div>
 <header style="position: sticky; top: 0; z-index: 40; background: rgba(227, 228, 225, 0.93); backdrop-filter: blur(8px); border-bottom: 1.5px solid #1f2326">
   <div class="site-head">
-    <a class="brand" href="index.html" aria-label="Obra Parada, ir a la portada">
+    <a class="brand" href="index.html" aria-label="Obra Paralizada, ir a la portada">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="17" rx="1.5"/><path d="M9 22v7M23 22v7"/><path d="M8 13h16" class="brand-bar"/></svg>
-      Obra Parada
+      Obra Paralizada
     </a>
     <nav class="view-tabs" aria-label="Bases de datos">
       <a href="index.html">Obras paralizadas</a>
@@ -277,6 +279,12 @@ header nav.sub a{flex:0 0 auto}
         <div class="ofr"><dt>AVANCE FÍSICO</dt><dd>{{oFicha.a}}<span style="display: block; height: 8px; background: rgba(255, 255, 255, 0.25); margin-top: 6px"><i style="display: block; height: 100%; width: {{oFicha.w}}%; background: #e9a21a"></i></span></dd></div>
         <div class="ofr"><dt>CAUSA</dt><dd>{{oFicha.c}}</dd></div>
         <div class="ofr"><dt>AÑO DE INICIO</dt><dd>{{oFicha.i}}</dd></div>
+        <template sc-if value="{{oFicha.cui}}" hint-placeholder-val="{{false}}">
+        <div class="ofr"><dt>MEF · CUI {{oFicha.cui}}</dt><dd style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px">
+          <a href="{{oFicha.ssi}}" target="_blank" rel="noopener" style="color: #1f2326; background: #e9a21a; padding: 6px 10px; font: 600 15px 'Barlow Condensed', sans-serif; text-decoration: none">Ver más en el SSI ↗</a>
+          <a href="{{oFicha.seg}}" target="_blank" rel="noopener" style="color: #fff; border: 1.5px solid #fff; padding: 5px 10px; font: 600 15px 'Barlow Condensed', sans-serif; text-decoration: none">Seguimiento ↗</a>
+        </dd></div>
+        </template>
       </dl>
     </div>
   </template>
@@ -534,9 +542,10 @@ class Component extends DCLogic {
       const [o, s] = all[i];
       const d = s === 'a' ? A : B;
       return {
-        n: o[6], l: `${o[7] ? o[7] + ', ' : ''}${d[1]} · ${NIV[o[8]]}`, s: M(o[5]), w: Math.max(0, o[2]),
+        n: o[6], l: `${o[7] ? o[7] + ', ' : ''}${d[1]} · ${NIV[o[8]]}`, s: o[5] > 0 ? M(o[5]) : 'Sin monto reportado', w: Math.max(0, o[2]),
         a: `${o[2] < 0 ? 'Avance sin dato' : o[2] + '% construida'} · ${CAUS[o[3]]}`, c: CAUS[o[3]], i: o[4] ? 2000 + o[4] : 'Sin dato',
         k: `${d[1]} · ${NIV[o[8]]}`,
+        cui: o[9] || '', ssi: o[9] ? `https://ofi5.mef.gob.pe/ssi/Ssi/Index?codigo=${o[9]}&tipo=2` : '', seg: o[9] ? `https://ofi5.mef.gob.pe/invierteWS/Repseguim/ResumF12B?codigo=${o[9]}` : '',
       };
     };
     const hit = (e) => {
@@ -564,7 +573,7 @@ class Component extends DCLogic {
       oLeave: () => this.setState({ oh: null }),
       oClick: (e) => { const i = hit(e); this.setState({ os: i }); },
       oTipOn: Boolean(tip), oTip: tip || { p: 0, x: 0, y: 0, tx: '0', n: '', l: '', s: '', w: 0, a: '' },
-      oFichaOn: Boolean(ficha), oFicha: ficha || { k: '', n: '', l: '', s: '', a: '', w: 0, c: '', i: '' },
+      oFichaOn: Boolean(ficha), oFicha: ficha || { k: '', n: '', l: '', s: '', a: '', w: 0, c: '', i: '', cui: '', ssi: '', seg: '' },
       oClose: () => this.setState({ os: null }),
     };
   }
@@ -724,7 +733,7 @@ class Component extends DCLogic {
     const mayor = A[3] >= B[3] ? A : B, menor = mayor === A ? B : A;
     const resumen = A[0] === B[0]
       ? 'Elige dos departamentos distintos.'
-      : `${mayor[1]} tiene ${ratio >= 1.95 ? nf1.format(ratio) + ' veces' : 'más'} el dinero parado de ${menor[1]} (${M(mayor[3])} frente a ${M(menor[3])}), con ${nf.format(mayor[2])} obras frente a ${nf.format(menor[2])}.`;
+      : `${mayor[1]} tiene ${ratio >= 1.95 ? nf1.format(ratio) + ' veces' : 'más'} el dinero paralizado de ${menor[1]} (${M(mayor[3])} frente a ${M(menor[3])}), con ${nf.format(mayor[2])} obras frente a ${nf.format(menor[2])}.`;
     return {
       opts: DEP.map((d) => ({ u: d[0], n: d[1] })).sort((x, y) => x.n.localeCompare(y.n, 'es')),
       a: this.state.a, b: this.state.b,

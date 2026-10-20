@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Obra Parada · Cómo se hizo</title>
-<meta name="description" content="Cómo se construye Obra Parada: descarga del informe, parser de Excel, dbt con DuckDB y exportación a una web estática.">
-<meta property="og:title" content="Obra Parada · Cómo se hizo">
-<meta property="og:description" content="Cómo se construye Obra Parada: descarga del informe, parser de Excel, dbt con DuckDB y exportación a una web estática.">
+<title>Obra Paralizada · Cómo se hizo</title>
+<meta name="description" content="Cómo se construye Obra Paralizada: descarga del informe, parser de Excel, dbt con DuckDB y exportación a una web estática.">
+<meta property="og:title" content="Obra Paralizada · Cómo se hizo">
+<meta property="og:description" content="Cómo se construye Obra Paralizada: descarga del informe, parser de Excel, dbt con DuckDB y exportación a una web estática.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="vendor/fonts.css" rel="stylesheet">
 <style>
@@ -64,6 +64,8 @@ header nav.sub{padding-left:16px!important;padding-right:16px!important}
 header nav.sub a{flex:0 0 auto}
 }
 /* menú compartido con el Explorador */
+:root { accent-color: #17457a; scrollbar-color: #5d6468 #d3d5d2; }
+::selection { background: #e9a21a; color: #1f2326; }
 .site-head { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; }
 .site-head .brand { display: inline-flex; align-items: center; gap: 8px; font: 800 24px/1 "Barlow Condensed", "Arial Narrow", sans-serif; color: #1f2326; text-decoration: none; }
 .site-head .brand svg { width: 30px; height: 30px; fill: none; stroke: #1f2326; stroke-width: 2.2; }
@@ -103,9 +105,9 @@ header nav.sub a{flex:0 0 auto}
 <div class="prog" aria-hidden="true"></div>
 <header style="position: sticky; top: 0; z-index: 40; background: rgba(227, 228, 225, 0.95); backdrop-filter: blur(8px); border-bottom: 1.5px solid #1f2326">
   <div class="site-head">
-    <a class="brand" href="index.html" aria-label="Obra Parada, ir a la portada">
+    <a class="brand" href="index.html" aria-label="Obra Paralizada, ir a la portada">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="17" rx="1.5"/><path d="M9 22v7M23 22v7"/><path d="M8 13h16" class="brand-bar"/></svg>
-      Obra Parada
+      Obra Paralizada
     </a>
     <nav class="view-tabs" aria-label="Bases de datos">
       <a href="index.html">Obras paralizadas</a>
@@ -148,7 +150,7 @@ header nav.sub a{flex:0 0 auto}
   <div style="flex: 1.2 1 480px; min-width: 0" class="term">
     <div style="display: flex; align-items: center; gap: 6px; padding: 10px 12px; border-bottom: 1px solid #2c5684">
       <span style="width: 10px; height: 10px; border-radius: 50%; background: #3d6896"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #3d6896"></span><span style="width: 10px; height: 10px; border-radius: 50%; background: #3d6896"></span>
-      <span style="margin-left: 8px; font-size: 13px; color: #9fb5cc">obra-parada: {{termTitle}}</span>
+      <span style="margin-left: 8px; font-size: 13px; color: #9fb5cc">obra-paralizada: {{termTitle}}</span>
     </div>
     <div style="padding: 18px 20px; min-height: 380px; font: 400 14px/1.7 'JetBrains Mono', ui-monospace, monospace" aria-live="polite">
       <template sc-for list="{{lines}}" as="l" hint-placeholder-count="6">
@@ -188,10 +190,10 @@ header nav.sub a{flex:0 0 auto}
     <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">JSON estático y no una API</h3><p style="margin: 0; color: #c9d6e6">El dato cambia cada tres meses. Generar JSON en el pipeline y servirlo desde un CDN es más barato, más rápido y no hay nada que mantener en producción.</p></div>
     <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">Un parser que no asume columnas</h3><p style="margin: 0; color: #c9d6e6">El Excel cambia entre informes. Busca la fila de cabecera y reconoce cada columna por su nombre; si trae dos costos, toma el actualizado de Invierte.pe.</p></div>
     <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">Tests antes de publicar</h3><p style="margin: 0; color: #c9d6e6">Avance entre 0 y 100, saldo menor que el costo, totales que cuadran y cada control ligado a una obra. Si algo falla, no se publica.</p></div>
-    <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">Año de inicio, no fecha de paralización</h3><p style="margin: 0; color: #c9d6e6">La base de junio de 2026 no trae cuándo se paró cada obra. Se usa el año en que empezó y se dice así, en vez de inventar un tiempo parada.</p></div>
+    <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">Año de inicio, no fecha de paralización</h3><p style="margin: 0; color: #c9d6e6">La base de junio de 2026 no trae cuándo se paró cada obra. Se usa el año en que empezó y se dice así, en vez de inventar cuánto tiempo lleva paralizada.</p></div>
     <div class="dec rv"><h3 style="margin: 0 0 8px; font: 700 24px 'Barlow Condensed', sans-serif; color: #e9a21a">Cada lunes, solo</h3><p style="margin: 0; color: #c9d6e6">GitHub Actions revisa gob.pe. Si el archivo cambió (otro SHA-256), corre todo el pipeline, commitea los JSON y GitHub Pages publica.</p></div>
   </div>
-  <p class="rv" style="margin: 48px 0 0; color: #9fb5cc">Código en <a href="https://github.com/Key-qr/obra-parada">github.com/Key-qr/obra-parada</a> · Licencia MIT</p>
+  <p class="rv" style="margin: 48px 0 0; color: #9fb5cc">Código en <a href="https://github.com/Key-qr/obra-paralizada">github.com/Key-qr/obra-paralizada</a> · Licencia MIT</p>
 </section>
 </div>
 </template>

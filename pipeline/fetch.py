@@ -33,7 +33,7 @@ MONTHS = {
     "enero": 1, "febrero": 2, "marzo": 3, "abril": 4, "mayo": 5, "junio": 6, "julio": 7,
     "agosto": 8, "setiembre": 9, "septiembre": 9, "octubre": 10, "noviembre": 11, "diciembre": 12,
 }
-HEADERS = {"User-Agent": "obra-parada/1.0 (+https://github.com/Key-qr/obra-parada)"}
+HEADERS = {"User-Agent": "obra-paralizada/1.0 (+https://github.com/Key-qr/obra-paralizada)"}
 
 
 @dataclass

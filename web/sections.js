@@ -87,7 +87,7 @@ export function bindTipos(h) {
     peek.innerHTML = `<span class="bolt tl"></span><span class="bolt tr"></span>
       <span class="p-k">Ejemplos con más dinero pendiente</span>
       <span class="p-name">${cur}</span>
-      ${rows.map((o) => `<span class="p-ex"><span>${h.esc(o.nombre.length > 80 ? o.nombre.slice(0, 78) + "…" : o.nombre)}</span><small>${h.esc(o.dist || o.prov || o.dep || "")}, ${h.solesCorto(o.saldo)}, ${o.avance != null ? h.nf1.format(o.avance) + "%" : "–"}</small></span>`).join("") || '<span class="p-k">Sin obras con estos filtros</span>'}
+      ${rows.map((o) => `<span class="p-ex"><span>${h.esc(o.nombre.length > 80 ? o.nombre.slice(0, 78) + "…" : o.nombre)}</span><small>${h.esc(o.dist || o.prov || o.dep || "")}, ${o.saldo > 0 || o.costo > 0 ? h.solesCorto(o.saldo) : "sin monto reportado"}, ${o.avance != null ? h.nf1.format(o.avance) + "%" : "–"}</small></span>`).join("") || '<span class="p-k">Sin obras con estos filtros</span>'}
       <span class="p-k">Clic para filtrar el mapa por este tipo</span>`;
     peek.hidden = false;
     peek.classList.remove("is-in"); void peek.offsetWidth; peek.classList.add("is-in");
@@ -135,8 +135,8 @@ export function renderRecords(obras, h) {
     { k: "El distrito con más obras paralizadas", v: `${h.nf.format(distN)} obras`, name: distObra?.dist, sub: [distObra?.prov, distObra?.dep].filter(Boolean).join(", "), act: `zona:distrito:${dist}` },
     ...(masCtrl?.nctrl ? [{ k: "La obra con más servicios de control", v: `${h.nf.format(masCtrl.nctrl)} controles`, name: masCtrl.nombre, sub: `${lugar(masCtrl)}. Ver sus informes`, act: `ctrl:${masCtrl.id}` }] : []),
     ...(masPim?.pim ? [{ k: "La que más presupuesto tiene este año", v: h.soles(masPim.pim), name: masPim.nombre, sub: `${lugar(masPim)}. Le falta ${h.soles(masPim.saldo)}`, act: `obra:${masPim._i}` }] : []),
-    ...(masCtrl?.nctrl && sinCtrl ? [{ k: "La más cara que nunca tuvo un control", v: h.soles(sinCtrl.saldo), name: sinCtrl.nombre, sub: `${lugar(sinCtrl)}. Cero servicios de control`, act: `obra:${sinCtrl._i}` }] : []),
-    { k: "El departamento con más dinero parado", v: h.soles(depV), name: depObra?.dep, sub: `${h.nf.format(obras.filter((o) => o.u_dep === dep).length)} obras`, act: `zona:departamento:${dep}` },
+    ...(masCtrl?.nctrl && sinCtrl ? [{ k: "Mayor monto pendiente sin control", v: h.soles(sinCtrl.saldo), name: sinCtrl.nombre, sub: `${lugar(sinCtrl)}. Cero servicios de control`, act: `obra:${sinCtrl._i}` }] : []),
+    { k: "El departamento con más dinero paralizado", v: h.soles(depV), name: depObra?.dep, sub: `${h.nf.format(obras.filter((o) => o.u_dep === dep).length)} obras`, act: `zona:departamento:${dep}` },
   ];
   const grid = document.getElementById("rec-grid");
   grid.innerHTML = cards.map((c, i) => `
@@ -180,7 +180,7 @@ export function renderTimeline(scope, h) {
       <span class="tl-y">${list.length > 12 ? "’" + String(y).slice(2) : y}</span>
     </div>`).join("")}</div>`;
   document.getElementById("tl-note").textContent =
-    `Obras paralizadas según el año en que empezaron. El año con más ${metric === "saldo" ? "dinero hoy parado" : "obras"} fue ${peak[0]}.${sinFecha ? ` ${h.nf.format(sinFecha)} sin año declarado.` : ""}`;
+    `Obras paralizadas según el año en que empezaron. El año con más ${metric === "saldo" ? "dinero hoy paralizado" : "obras"} fue ${peak[0]}.${sinFecha ? ` ${h.nf.format(sinFecha)} sin año declarado.` : ""}`;
 }
 
 // ---------- nivel de gobierno y modalidad ----------

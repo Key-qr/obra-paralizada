@@ -8,6 +8,7 @@
 //   causa   barras de puntos, una fila por causa declarada
 //
 // Además se puede "resaltar" un subconjunto (el resto se apaga).
+import { puntoInterior, puntoCerca } from "./interior.js";
 import { reduced } from "./motion.js";
 
 const DUR = 950;
@@ -18,7 +19,7 @@ export function createDots({ canvas, obras, geo, colors, fmtSoles, onHover, onLe
 
   const centers = new Map();
   for (const nivel of ["distrito", "provincia", "departamento"]) {
-    for (const f of geo[nivel].features) centers.set(f.properties.ubigeo, centroid(f.geometry));
+    for (const f of geo[nivel].features) { const z = puntoInterior(f.geometry); if (z) centers.set(f.properties.ubigeo, z); }
   }
 
   let seed = 7;
@@ -27,14 +28,15 @@ export function createDots({ canvas, obras, geo, colors, fmtSoles, onHover, onLe
   const maxSaldo = Math.max(1, ...obras.map((o) => o.saldo || 0));
   const dots = [];
   for (const o of obras) {
-    const c = centers.get(o.u_dist) || centers.get(o.u_prov) || centers.get(o.u_dep);
-    if (!c) continue;
-    const spread = o.u_dist && centers.get(o.u_dist) ? 0.06 : 0.22;
-    const ang = rnd() * Math.PI * 2, rad = Math.sqrt(rnd()) * spread;
+    const z = centers.get(o.u_dist) || centers.get(o.u_prov) || centers.get(o.u_dep);
+    if (!z) continue;
+    // Un poco separadas del centro para que no se encimen, pero siempre dentro de su zona.
+    const spread = Math.min(o.u_dist && centers.get(o.u_dist) ? 0.06 : 0.22, Math.min(z.w, z.h) * 0.3);
+    const [lon, lat] = puntoCerca(z, spread, rnd, centers.get(o.u_dep)?.anillo);
     dots.push({
       o,
-      lon: c[0] + Math.cos(ang) * rad,
-      lat: c[1] + Math.sin(ang) * rad,
+      lon,
+      lat,
       rGeo: 1.6 + 6 * Math.sqrt((o.saldo || 0) / maxSaldo),
       casi: (o.avance ?? 0) >= 90,
       zone: o.u_dist || o.u_prov || o.u_dep,
@@ -308,11 +310,3 @@ function eachCoord(geom, fn) {
   walk(geom.coordinates);
 }
 
-function centroid(geom) {
-  if (!geom) return null;
-  const polys = geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates;
-  const ring = polys.map((p) => p[0]).sort((a, b) => b.length - a.length)[0];
-  let x = 0, y = 0;
-  for (const [lon, lat] of ring) { x += lon; y += lat; }
-  return [x / ring.length, y / ring.length];
-}

@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Obra Parada · obras públicas paralizadas en el Perú</title>
+  <title>Obra Paralizada · obras públicas paralizadas en el Perú</title>
   <meta name="description" content="Mapa de las obras públicas paralizadas en el Perú según la Contraloría: dónde están, cuánto falta por ejecutar y por qué se detuvieron.">
-  <meta property="og:title" content="Obra Parada">
+  <meta property="og:title" content="Obra Paralizada">
   <meta property="og:description" content="Busca tu distrito y mira qué obras públicas están paralizadas, cuánto costaron y por qué se detuvieron.">
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link href="vendor/fonts.css" rel="stylesheet">
@@ -20,9 +20,9 @@
   <div class="progress" aria-hidden="true"><span id="progress-bar"></span></div>
 
   <header class="site-head">
-    <a class="brand" href="index.html" aria-label="Obra Parada, ir a la portada">
+    <a class="brand" href="index.html" aria-label="Obra Paralizada, ir a la portada">
       <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="3" y="5" width="26" height="17" rx="1.5"/><path d="M9 22v7M23 22v7"/><path d="M8 13h16" class="brand-bar"/></svg>
-      Obra Parada
+      Obra Paralizada
     </a>
     <nav class="view-tabs" aria-label="Bases de datos">
       <a href="index.html" class="on" aria-current="page">Obras paralizadas</a>
@@ -42,12 +42,12 @@
       <div class="story-grid">
         <div class="story-text">
           <div class="story-step hero-text is-active" data-mode="geo">
-            <h1 id="hero-title">¿Qué obra está parada en tu distrito?</h1>
-            <p class="lede">Cada trimestre la Contraloría publica la lista de obras públicas que llevan seis meses o más sin avance. Aquí la puedes buscar por lugar o por lo que se estaba construyendo, ver cuánto se gastó y por qué se detuvo.</p>
+            <h1 id="hero-title">¿Qué obra está paralizada en tu distrito?</h1>
+            <p class="lede">Cada trimestre la Contraloría publica la lista de obras públicas que llevan seis meses o más sin avance. Aquí la puedes buscar por lugar, ver cuánto se gastó y por qué se detuvo.</p>
             <div class="search" role="search">
-              <label for="q">Busca un lugar o una obra</label>
-              <div class="search-box" data-buscador>
-                <input id="q" type="search" autocomplete="off" placeholder="Ej. Huanchaco, puente Iquitos, colegio Cusco" aria-controls="q-list" aria-expanded="false" aria-autocomplete="list" role="combobox">
+              <label for="q">Busca un distrito, provincia o departamento</label>
+              <div class="search-box">
+                <input id="q" type="search" autocomplete="off" placeholder="Ej. Santiago, Cusco" aria-controls="q-list" aria-expanded="false" aria-autocomplete="list" role="combobox">
                 <ul id="q-list" role="listbox" hidden></ul>
               </div>
             </div>
@@ -71,7 +71,7 @@
           <div class="story-step" id="paso-1" data-mode="avance" data-hl="mitad">
             <p class="step-k">El avance</p>
             <p class="step-big"><span data-s="mitad">…</span> de <span data-s="obras">…</span> obras se quedaron con más de la mitad construida.</p>
-            <p>Los puntos se ordenan según el avance físico que tenía cada obra cuando se paró. Las que pasan el 50% ya tienen hecha la parte más cara del trabajo.</p>
+            <p>Los puntos se ordenan según el avance físico que tenía cada obra cuando se paró. Las que pasan el 50% ya tienen ejecutada más de la mitad de la obra.</p>
           </div>
 
           <div class="story-step" data-mode="causa" data-hl="topcausa">
@@ -132,15 +132,7 @@
     <section class="map-section" id="mapa" aria-labelledby="mapa-title">
       <div class="section-head">
         <h2 class="decode" id="mapa-title">Mapa de obras paralizadas</h2>
-        <p class="section-note">Haz clic en una zona para ver sus obras. Al acercarte, cada punto es una obra y salen los nombres de las provincias y distritos. Los filtros afectan el mapa y todo lo que está debajo.</p>
-      </div>
-
-      <div class="search search-map" role="search">
-        <label for="q-mapa">Busca un lugar o una obra</label>
-        <div class="search-box" data-buscador>
-          <input id="q-mapa" type="search" autocomplete="off" placeholder="Ej. calles Trujillo, mercado Belén, código Infobras" aria-controls="q-mapa-list" aria-expanded="false" aria-autocomplete="list" role="combobox">
-          <ul id="q-mapa-list" role="listbox" hidden></ul>
-        </div>
+        <p class="section-note">Haz clic en una zona para ver sus obras. Los filtros afectan el mapa y todo lo que está debajo.</p>
       </div>
 
       <form class="controls" id="controls" aria-label="Filtros">
@@ -262,7 +254,7 @@
       <div class="col">
         <div class="section-head" id="casi">
           <h2 class="decode">A un paso de terminar</h2>
-          <p class="section-note">Obras con 90% o más de avance físico. Son las más baratas de destrabar.</p>
+          <p class="section-note">Obras con 90% o más de avance físico. Son las que necesitan menos inversión para terminarse.</p>
         </div>
         <ol class="obra-list compact" id="casi-list"></ol>
       </div>
@@ -328,7 +320,7 @@
       <div class="pipe-grid">
         <div class="term-wrap">
           <div class="term">
-            <div class="term-bar"><i></i><i></i><i></i><span id="term-title">obra-parada</span></div>
+            <div class="term-bar"><i></i><i></i><i></i><span id="term-title">obra-paralizada</span></div>
             <div class="term-body" id="term-body"></div>
           </div>
           <ol class="flow" id="flow" aria-hidden="true">
@@ -460,7 +452,7 @@
   </main>
 
   <footer class="site-foot">
-    <p>Proyecto abierto de <a href="https://github.com/Key-qr">Keysi Quiñe</a>. Código en <a href="https://github.com/Key-qr/obra-parada">GitHub</a>, licencia MIT. Límites distritales: INEI.</p>
+    <p>Proyecto abierto de <a href="https://github.com/Key-qr">Keysi Quiñe</a>. Código en <a href="https://github.com/Key-qr/obra-paralizada">GitHub</a>, licencia MIT. Límites distritales: INEI.</p>
   </footer>
 
   <nav class="side-nav" id="side-nav" aria-label="Ir a sección">
@@ -502,12 +494,13 @@
       <div><dt>Sector</dt><dd id="d-sector"></dd></div>
       <div><dt>Código Infobras</dt><dd id="d-id"></dd></div>
       <div><dt>CUI (Invierte.pe)</dt><dd id="d-cui"></dd></div>
+      <div class="d-wide d-mef" id="d-mef-box"><dt>Más información en el MEF</dt><dd id="d-mef"></dd></div>
     </dl>
     <div class="hero-actions d-actions">
       <button type="button" class="btn btn-solid btn-sm" id="d-ver">Ver en el mapa</button>
       <button type="button" class="btn btn-sm" id="d-otra">Otra obra al azar</button>
     </div>
-    <p class="fine">Con el CUI puedes buscar la inversión en el Seguimiento de Inversiones (SSI) del MEF, y con el código en Infobras.</p>
+    <p class="fine">Los enlaces del MEF se arman con el CUI de la obra: la ficha del Sistema de Seguimiento de Inversiones (SSI) y el seguimiento detallado (formato 12-B), cuando la entidad lo registró. Con el código Infobras puedes buscarla en el sistema de la Contraloría.</p>
   </dialog>
 
   <script src="vendor/maplibre-gl.js"></script>
