@@ -2,7 +2,7 @@
 
 <p align="center">
   <b>2,262 obras públicas paralizadas en el Perú y S/ 27.5 mil millones por ejecutar.</b><br>
-  Un sitio para ver dónde están, por qué se pararon, cuánto costaría terminarlas y qué revisó la Contraloría en cada una.
+  Un sitio para ver dónde están, por qué se paralizaron, cuánto costaría terminarlas y qué revisó la Contraloría en cada una.
 </p>
 
 <p align="center">
@@ -61,7 +61,7 @@ La portada es la historia de arriba y termina en la cinta de obras. Al buscar tu
 - **Servicios de control (pestaña aparte):** los 4,386 servicios del Anexo N.° 02 por tipo de control, tipo de acción, año y órgano que lo hizo; las obras más revisadas; las obras con más dinero pendiente que nunca tuvieron un control; y un buscador de informes por texto, departamento, tipo y año, con enlace al PDF en el sistema de la Contraloría.
 - **"A un paso de terminar":** obras con 90%+ de avance, las que necesitan menos inversión para terminarse.
 - **Qué se dejó de construir:** los tipos de obra de la clasificación oficial (transporte terrestre, saneamiento, educación, atención médica, riego…). Cada tipo muestra cuántas obras hay, cuánto falta y su avance mediano; es también un filtro del mapa.
-- **Récords:** la obra con más dinero pendiente, la más antigua, la que se paró casi terminada, la que tuvo más servicios de control, la entidad y el distrito con más obras, el departamento con más dinero parado.
+- **Datos que destacan:** la obra con más monto pendiente, la de mayor antigüedad, la que se detuvo casi terminada, la que tuvo más servicios de control, la entidad y el distrito con más obras, el departamento con más monto pendiente.
 - **Cuándo empezaron:** obras (o dinero) por año de inicio.
 - **Quién las ejecuta:** porcentaje de obras frente a porcentaje de dinero por nivel de gobierno, y una tabla por modalidad (administración directa, contrata, núcleo ejecutor, obras por impuestos).
 - **Comparador de departamentos:** dos departamentos dibujados como el Perú hecho de puntos, lado a lado en obras, dinero, avance, antigüedad, presupuesto, servicios de control, causa y tipo principal.
@@ -97,13 +97,13 @@ Y se mueve con lo que haces:
 
 <p align="center"><img src="docs/img/mapa.gif" width="760" alt="Recorrido automático por departamentos y mapa en 3D que se arrastra"></p>
 
-Departamentos coloreados por dinero pendiente, obras, controles, presupuesto del año, avance mediano u obras casi terminadas. Filtro por nivel de gobierno, obras grandes como puntos, vista de puntitos, zoom, **recorrido automático**, **3D que se arrastra y gira** y línea de tiempo por año de inicio. El panel compara cada departamento con el promedio del país. Debajo: ranking, burbujas, carrera de barras y tabla.
+Departamentos coloreados por dinero pendiente, obras, controles, presupuesto del año, avance mediano u obras casi terminadas. Filtro por nivel de gobierno, obras grandes como puntos, vista de puntitos, zoom, **recorrido automático**, **3D que se arrastra y gira** y línea de tiempo por año de inicio. El panel compara cada departamento con el promedio del país. Debajo: ranking, burbujas, barras año por año y tabla.
 
 ### 4 · Comparar
 
 <p align="center"><img src="docs/img/comparar.gif" width="760" alt="Obra por obra: los puntos se reordenan entre mapa, avance, causa y año de inicio"></p>
 
-Dos departamentos frente a frente. En **Obra por obra** cada obra es un punto (azul uno, ámbar el otro) que viaja entre el mapa, un histograma de avance, filas por causa y año de inicio. El cursor muestra la obra y el clic abre su ficha. Además: balanza, radar que se transforma al cambiar de departamento, perfiles, curvas acumuladas y un duelo al azar.
+Dos departamentos frente a frente. En **Obra por obra** cada obra es un punto (azul uno, ámbar el otro) que viaja entre el mapa, un histograma de avance, filas por causa y año de inicio. El cursor muestra la obra y el clic abre su ficha. Además: balanza, radar que se transforma al cambiar de departamento, perfiles, curvas acumuladas y una comparación al azar.
 
 ### 5 · Servicios de control
 
@@ -120,11 +120,11 @@ Los 4,386 servicios del Anexo N.° 02: tipos de control, obras con y sin control
 
 <table>
 <tr>
-<td width="50%"><img src="docs/img/analisis.png" alt="Análisis: adivina la causa que más dinero frena"></td>
+<td width="50%"><img src="docs/img/analisis.png" alt="Análisis: adivina qué causa concentra más monto pendiente"></td>
 <td width="50%"><img src="docs/img/metodo.png" alt="Cómo se hizo: el pipeline paso a paso"></td>
 </tr>
 <tr>
-<td valign="top"><b>Análisis.</b> Primero adivinas qué causa frena más dinero y después ves la respuesta. Un control para mover el umbral de avance, tipos de obra, año de inicio, nivel de gobierno y récords en tarjetas que se voltean.</td>
+<td valign="top"><b>Análisis.</b> Primero adivinas qué causa frena más dinero y después ves la respuesta. Un control para mover el umbral de avance, tipos de obra, año de inicio, nivel de gobierno y datos que destacan en tarjetas que se voltean.</td>
 <td valign="top"><b>Cómo se hizo.</b> El pipeline paso a paso con una terminal que escribe mientras haces scroll, y un <b>probador del parser</b>: escribes una cabecera de Excel y ves qué regla de <code>parse.py</code> la reconoce y a qué campo va.</td>
 </tr>
 </table>
@@ -151,7 +151,7 @@ Minuto y medio por el sitio: la portada, el simulador, el Perú en puntos, el re
 
 <p align="center"><img src="docs/img/paleta.png" width="760" alt="Paleta: grafito, azul cartel, ámbar, papel, concreto, gris y la escala azul del mapa; tipografías Barlow Condensed y Barlow"></p>
 
-Inspirada en el cartel de obra pública peruano: azul con letras blancas, cinta ámbar y gris concreto. Todos los colores están definidos a mano como variables (`web/styles.css`), incluidos los que el navegador pondría por defecto: la selección de texto, las casillas y las barras de desplazamiento. Tipografías: **Barlow Condensed** para títulos y cifras, **Barlow** para el texto, servidas desde el mismo sitio. El lenguaje de los textos es neutral: se habla de "monto pendiente" o "#1 en monto pendiente", nunca de obras "caras" o "baratas".
+Inspirada en el cartel de obra pública peruano: azul con letras blancas, cinta ámbar y gris concreto. Todos los colores están definidos a mano como variables (`web/styles.css`), incluidos los que el navegador pondría por defecto: la selección de texto, las casillas y las barras de desplazamiento. Tipografías: **Barlow Condensed** para títulos y cifras, **Barlow** para el texto, servidas desde el mismo sitio. El lenguaje es neutral y diplomático: describe montos, plazos y causas sin calificar a las obras ni a quienes las ejecutan. Las palabras a evitar y sus reemplazos están en [`docs/LEXICO.md`](docs/LEXICO.md), y una prueba (`tests/test_lexico.py`) revisa todos los textos del sitio en cada cambio.
 
 ## Arquitectura
 
@@ -272,7 +272,7 @@ make geo                        # límites del INEI simplificados
 
 **DuckDB y no Postgres.** Son miles de filas, no millones. Un archivo DuckDB corre en el runner de GitHub sin servicios, y dbt funciona igual que contra un warehouse grande.
 
-**JSON estático y no una API.** El dato cambia cada tres meses. Generar JSON en el pipeline y servirlo desde un CDN es más barato, más rápido y no tiene nada que mantener en producción.
+**JSON estático y no una API.** El dato cambia cada tres meses. Generar JSON en el pipeline y servirlo desde un CDN cuesta menos, es más rápido y no tiene nada que mantener en producción.
 
 **Filtros en el cliente.** Con ~2,300 obras y ~4,400 servicios de control (unos 600 KB comprimidos) recalcular agregados en el navegador toma milisegundos y evita una capa de backend.
 
@@ -299,7 +299,7 @@ make geo                        # límites del INEI simplificados
 - 178 obras vienen con costo y saldo en cero (a veces el monto de un proyecto quedó en otra de sus fichas). La página las muestra como "Sin monto reportado" en vez de "S/ 0".
 - 756 servicios de control no traen enlace a su informe en la base; se muestran sin botón de PDF.
 - Las seis páginas que acompañan al explorador traen sus cifras resumidas (por departamento, por causa, por año, los pasos del simulador) escritas en el código con los datos de junio de 2026. El pipeline semanal actualiza `web/data/*.json`, que usan el explorador y las vistas de puntos, pero esas cifras se tienen que regenerar a mano cuando salga un informe nuevo.
-- Una obra paralizada no implica corrupción ni mala gestión de la autoridad actual. La página no acusa a nadie.
+- Que una obra esté paralizada solo indica que no registra avance. La página no atribuye responsabilidades a ninguna persona ni entidad, y muchas obras vienen de gestiones anteriores.
 
 ## Estructura
 

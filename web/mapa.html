@@ -384,7 +384,7 @@ header nav.sub a{flex:0 0 auto}
           <span style="flex-grow: {{sel.mN}}; flex-basis: 0; background: #e9a21a"></span>
         </div>
         <p style="margin: 0 0 18px; font-size: 13px; color: #5d6468"><span style="color: #17457a; font-weight: 600">■</span> Municipalidades {{sel.mL}} · <span style="color: #5b84ad; font-weight: 600">■</span> Regionales {{sel.mR}} · <span style="color: #8a5a00; font-weight: 600">■</span> Nacional {{sel.mN}}</p>
-        <h3 style="margin: 0; font: 700 20px 'Barlow Condensed', sans-serif">Qué se paró</h3>
+        <h3 style="margin: 0; font: 700 20px 'Barlow Condensed', sans-serif">Qué se paralizó</h3>
         <div style="margin-bottom: 20px">
           <template sc-for list="{{sel.tipos}}" as="t" hint-placeholder-count="6">
             <div class="tb"><span>{{t.n}}</span><b style="text-align: right; font: 700 15px 'Barlow Condensed', sans-serif">{{t.v}}</b><span class="b" aria-hidden="true"><i style="width: {{t.w}}%"></i></span></div>
@@ -438,7 +438,7 @@ header nav.sub a{flex:0 0 auto}
 <section class="sec2" id="burbujas">
   <p class="kick2">CADA DEPARTAMENTO, UNA BURBUJA</p>
   <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px">
-    <h2 class="h2b" style="max-width: 20ch">Muchas obras chicas o pocas obras enormes</h2>
+    <h2 class="h2b" style="max-width: 20ch">Muchas obras de menor monto o pocas de gran monto</h2>
     <p style="margin: 0; color: #5d6468; max-width: 44ch">Horizontal: número de obras. Vertical: lo que falta ejecutar (escala logarítmica). Tamaño: servicios de control. Clic en una burbuja para verla en el mapa.</p>
   </div>
   <div class="plot" onMouseLeave="{{bLeave}}">
@@ -461,7 +461,7 @@ header nav.sub a{flex:0 0 auto}
 </section>
 
 <section class="sec2" id="carrera" style="padding-top: 24px">
-  <p class="kick2">LA CARRERA</p>
+  <p class="kick2">AÑO POR AÑO</p>
   <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 20px">
     <h2 class="h2b">Quién fue acumulando más, año por año</h2>
     <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
@@ -774,7 +774,7 @@ class Component extends DCLogic {
       xTicks: [0, 100, 200, 300].map((o) => ({ l: lx(o).toFixed(1), t: `${o} obras` })),
       rMetrics: [['saldo', 'Falta ejecutar'], ['obras', 'Obras']].map(([k, l]) => ({ l, cls: st.rm === k ? 'fchip on' : 'fchip', pick: () => this.setState({ rm: k }) })),
       raceRows, raceYr: 2007 + st.ryi, racing: st.racing, notRacing: !st.racing,
-      raceLabel: st.racing ? 'Pausar la carrera' : 'Reproducir la carrera',
+      raceLabel: st.racing ? 'Pausar' : 'Reproducir año por año',
       raceToggle: () => this.setState({ racing: !st.racing, ryi: !st.racing && st.ryi >= 19 ? 0 : st.ryi }),
       xq: st.xq, onXq: (e) => this.setState({ xq: e.target.value }),
       fDep: st.fdep ? 'fchip on' : 'fchip', fCasi: st.fcasi ? 'fchip on' : 'fchip', fSin: st.fsin ? 'fchip on' : 'fchip',

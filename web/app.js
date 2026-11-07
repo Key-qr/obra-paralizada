@@ -980,9 +980,9 @@ function initStory() {
     topcausa: `"${(top?.[0] || "").toLowerCase()}"`,
     causa_det: top ? `${nf.format(top[1].n)} obras y ${soles(top[1].saldo)} pendientes. Le siguen ${(segunda?.[0] || "").toLowerCase()} y ${(tercera?.[0] || "").toLowerCase()}.` : "",
     mediana: anio(med),
-    tiempo_det: `${nf.format(mas10)} obras empezaron hace diez años o más y siguen sin terminarse. La más antigua es de ${minIni}. Las más viejas están a la izquierda del gráfico.`,
+    tiempo_det: `${nf.format(mas10)} obras empezaron hace diez años o más y siguen sin terminarse. La de mayor antigüedad empezó en ${minIni}. Las que empezaron antes están a la izquierda del gráfico.`,
     pim: nf.format(conPim.length),
-    pim_det: `Entre todas suman ${soles(conPim.reduce((s, o) => s + (o.pim || 0), 0))} de presupuesto para el año. Las otras ${nf.format(sinPim)} no tienen ni un sol asignado${prior ? `, y ${nf.format(prior)} figuran en la lista priorizada del MEF para reactivarse` : ""}.`,
+    pim_det: `Entre todas suman ${soles(conPim.reduce((s, o) => s + (o.pim || 0), 0))} de presupuesto para el año. Las otras ${nf.format(sinPim)} no tienen presupuesto asignado este año${prior ? `, y ${nf.format(prior)} figuran en la lista priorizada del MEF para reactivarse` : ""}.`,
     casi: nf.format(casi.length),
     casi_det: `Terminarlas costaría ${soles(saldoCasi)}: el ${nf1.format((saldoCasi / saldoTotal) * 100)}% de todo lo que falta ejecutar. Son las que más rápido se podrían destrabar.`,
   };

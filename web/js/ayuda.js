@@ -6,9 +6,9 @@
 
   const PREGUNTAS = [
     ["¿Qué es una obra paralizada?",
-      "Para la Contraloría, es una obra pública que no registra avance físico por seis meses o más en Infobras, el sistema donde las entidades deben reportar el avance de sus obras. No importa si la obra está abandonada, en arbitraje o esperando presupuesto: si no avanza, cuenta."],
+      "Para la Contraloría, es una obra pública que no registra avance físico por seis meses o más en Infobras, el sistema donde las entidades deben reportar el avance de sus obras. No importa la causa (un arbitraje, un problema con el contratista o la espera de presupuesto): si no avanza, cuenta."],
     ["¿Qué diferencia hay entre costo actualizado y lo que falta ejecutar?",
-      "El costo actualizado es lo que cuesta la obra completa hoy, con sus adicionales y ampliaciones. Lo que falta ejecutar es la parte de ese costo que todavía no se ha gastado: lo mínimo que haría falta para terminarla, sin contar lo que pueda deteriorarse mientras está parada."],
+      "El costo actualizado es lo que cuesta la obra completa hoy, con sus adicionales y ampliaciones. Lo que falta ejecutar es la parte de ese costo que todavía no se ha gastado: lo mínimo que haría falta para terminarla, sin contar lo que pueda deteriorarse mientras está paralizada."],
     ["¿Qué es la administración directa?",
       "Es cuando la propia entidad (una municipalidad, por ejemplo) construye la obra con su personal y maquinaria, en vez de contratar a una empresa. La otra modalidad común es por contrata, cuando una empresa la gana en un proceso de selección."],
     ["¿Qué son el CUI y el código Infobras?",
@@ -18,13 +18,13 @@
     ["¿Por qué no dice desde cuándo está paralizada cada obra?",
       "Porque la base de junio de 2026 no trae la fecha de paralización. Lo que sí trae es el año en que empezó la obra, y eso es lo que se usa para medir el tiempo: una obra que empezó en 2012 y sigue sin terminarse lleva más de una década pendiente, aunque no se sepa el mes exacto en que se detuvo."],
     ["¿Qué es el PIM y por qué importa?",
-      "El Presupuesto Institucional Modificado es la plata que una entidad tiene asignada para un proyecto en el año. Una obra paralizada sin PIM no tiene con qué reactivarse ese año, por mucho que se quiera. La lista priorizada es otra cosa: es la relación de obras que el Estado eligió para reactivar primero, aprobada por resolución."],
+      "El Presupuesto Institucional Modificado es el presupuesto que una entidad tiene asignado para un proyecto en el año. Una obra paralizada sin PIM no cuenta con recursos para reactivarse ese año. La lista priorizada es otra cosa: es la relación de obras que el Estado eligió para reactivar primero, aprobada por resolución."],
     ["¿Qué es un servicio de control?",
       "Es cualquier revisión que hace la Contraloría o el órgano de control de la entidad (OCI): control concurrente mientras la obra avanza, visitas, orientaciones de oficio, auditorías. Cada uno termina en un informe, y la mayoría está publicado. En <a href=\"control.html\">Servicios de control</a> los puedes buscar por obra, lugar, tipo o año."],
     ["¿Cada cuánto se actualiza?",
       "La Contraloría publica un informe cada trimestre. Un proceso automático revisa gob.pe cada lunes; cuando aparece un archivo nuevo, lo procesa, valida y publica sin intervención manual."],
-    ["¿Que una obra esté paralizada significa que hubo corrupción?",
-      "No. Las causas más comunes son falta de presupuesto, problemas con el contratista o deficiencias en el expediente técnico. Esta página muestra los datos oficiales; no acusa a ninguna persona ni entidad."],
+    ["¿Qué indica que una obra esté paralizada?",
+      "Que no registra avance, nada más. Las causas más comunes son la falta de presupuesto, problemas con el contrato o deficiencias en el expediente técnico. Esta página muestra los datos oficiales y no atribuye responsabilidades a ninguna persona ni entidad."],
   ];
 
   const ORDENES = [["saldo", "Falta ejecutar"], ["obras", "Obras"], ["casi", "Con 90%+ de avance"]];
@@ -127,7 +127,7 @@
       ${PREGUNTAS.map(([q, a]) => `<details><summary>${q}</summary><p>${a}</p></details>`).join("")}
     </div>
     <div class="ay-body ay-ent" id="ay-ent" role="tabpanel" aria-labelledby="ay-t-ent" hidden>
-      <p class="ay-nota">Entidades con obras paralizadas en todo el país. Tener obras paralizadas no prueba una mala gestión actual: muchas vienen de gestiones anteriores.</p>
+      <p class="ay-nota">Entidades con obras paralizadas en todo el país. El número de obras paralizadas no describe por sí solo la gestión actual: muchas vienen de gestiones anteriores.</p>
       <input class="ay-buscar" type="search" placeholder="Busca una entidad o departamento" aria-label="Buscar entidad">
       <div class="ay-orden" role="group" aria-label="Ordenar por"><span>Ordenar por</span>
         ${ORDENES.map(([k, t], i) => `<button type="button" data-k="${k}" aria-pressed="${i === 0}">${t}</button>`).join("")}
@@ -220,7 +220,7 @@
     if (!panel.contains(e.target) && !btn.contains(e.target)) cerrar(false);
   });
 
-  // Enlaces viejos (#faq, #entidades) y cualquier enlace interno que apunte ahí abren la ventana.
+  // Enlaces anteriores (#faq, #entidades) y cualquier enlace interno que apunte ahí abren la ventana.
   const desdeHash = () => {
     const h = location.hash.slice(1);
     if (h === "faq" || h === "entidades") abrir(h === "faq" ? "faq" : "ent");

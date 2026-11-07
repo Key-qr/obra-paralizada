@@ -1,4 +1,4 @@
-// Secciones de información: tipos de obra, récords, línea de tiempo,
+// Secciones de información: tipos de obra, datos que destacan, línea de tiempo,
 // nivel de gobierno y modalidad, y comparador de departamentos.
 // Las funciones reciben los datos y unos helpers de app.js (formato, acciones).
 
@@ -108,12 +108,12 @@ export function bindTipos(h) {
   });
 }
 
-// ---------- récords ----------
+// ---------- datos que destacan ----------
 export function renderRecords(obras, h) {
   const max = (arr, f) => arr.reduce((a, o) => (f(o) > f(a) ? o : a), arr[0]);
   const conDato = (k) => obras.filter((o) => o[k] != null);
   const saldo = max(obras, (o) => o.saldo || 0);
-  const viejo = max(conDato("ini"), (o) => -o.ini);
+  const antigua = max(conDato("ini"), (o) => -o.ini);
   const masCtrl = max(obras, (o) => o.nctrl || 0);
   const masPim = max(obras, (o) => o.pim || 0);
   const sinCtrl = max(obras.filter((o) => !o.nctrl), (o) => o.saldo || 0);
@@ -129,8 +129,8 @@ export function renderRecords(obras, h) {
 
   const cards = [
     { k: "La obra con más dinero pendiente", v: h.soles(saldo.saldo), name: saldo.nombre, sub: lugar(saldo), act: `obra:${saldo._i}` },
-    { k: "La obra más antigua", v: `Empezó en ${viejo?.ini}`, name: viejo?.nombre, sub: `${lugar(viejo)}. Avance ${viejo?.avance != null ? h.nf1.format(viejo.avance) + "%" : "sin dato"}`, act: `obra:${viejo?._i}` },
-    { k: "Se paró casi terminada", v: `${h.nf1.format(casi?.avance)}%`, name: casi?.nombre, sub: `${lugar(casi)}. Le falta ${h.soles(casi?.saldo)}`, act: `obra:${casi?._i}` },
+    { k: "La obra de mayor antigüedad", v: `Empezó en ${antigua?.ini}`, name: antigua?.nombre, sub: `${lugar(antigua)}. Avance ${antigua?.avance != null ? h.nf1.format(antigua.avance) + "%" : "sin dato"}`, act: `obra:${antigua?._i}` },
+    { k: "Se paralizó casi terminada", v: `${h.nf1.format(casi?.avance)}%`, name: casi?.nombre, sub: `${lugar(casi)}. Le falta ${h.soles(casi?.saldo)}`, act: `obra:${casi?._i}` },
     { k: "La entidad con más obras paralizadas", v: `${h.nf.format(entN)} obras`, name: h.titulo(ent), sub: "Ver en la lista de entidades", act: "ent" },
     { k: "El distrito con más obras paralizadas", v: `${h.nf.format(distN)} obras`, name: distObra?.dist, sub: [distObra?.prov, distObra?.dep].filter(Boolean).join(", "), act: `zona:distrito:${dist}` },
     ...(masCtrl?.nctrl ? [{ k: "La obra con más servicios de control", v: `${h.nf.format(masCtrl.nctrl)} controles`, name: masCtrl.nombre, sub: `${lugar(masCtrl)}. Ver sus informes`, act: `ctrl:${masCtrl.id}` }] : []),

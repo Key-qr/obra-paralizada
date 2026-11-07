@@ -322,7 +322,7 @@ header nav.sub a{flex:0 0 auto}
   </div>
   <div class="rvl" style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 32px; padding: 28px 0">
     <span style="font: 800 clamp(72px, 10vw, 150px)/0.9 'Barlow Condensed', sans-serif; color: #1f2326">1,513</span>
-    <span style="flex: 1 1 320px; font: 600 clamp(24px, 2.6vw, 34px)/1.15 'Barlow Condensed', sans-serif">no tienen ni un sol de presupuesto asignado este año.</span>
+    <span style="flex: 1 1 320px; font: 600 clamp(24px, 2.6vw, 34px)/1.15 'Barlow Condensed', sans-serif">no tienen presupuesto asignado este año.</span>
   </div>
 </section>
 
@@ -339,7 +339,7 @@ header nav.sub a{flex:0 0 auto}
   </a>
   <a href="analisis.html" class="chap rv">
     <span class="num">02</span>
-    <span><span style="display: block; font: 700 clamp(28px, 3vw, 40px)/1 'Barlow Condensed', sans-serif; margin-bottom: 6px">Análisis</span><span style="color: #5d6468">Adivina la causa que más dinero frena, mueve el avance y mira los récords.</span></span>
+    <span><span style="display: block; font: 700 clamp(28px, 3vw, 40px)/1 'Barlow Condensed', sans-serif; margin-bottom: 6px">Análisis</span><span style="color: #5d6468">Adivina qué causa concentra más monto pendiente, mueve el avance y mira los datos que destacan.</span></span>
     <span class="mini" aria-hidden="true" style="font: 700 34px 'Barlow Condensed', sans-serif; color: #8a5a00">¿Adivinas?</span>
     <span class="arr" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
   </a>
@@ -550,7 +550,7 @@ class Component extends DCLogic {
         b: W ? `${Mo(rIt.sp)} de ${M(rIt.dd[2])} pendientes` : `${M(rIt.dd[2])} pendientes`,
       },
       skCap: money
-        ? 'Cada punto son S/ 100 millones por ejecutar. Los ámbar son la plata que se usaría con el presupuesto elegido: como se empieza por las obras con menor monto pendiente, suben mucho más lento.'
+        ? 'Cada punto son S/ 100 millones por ejecutar. Los ámbar son el presupuesto que se usaría con el presupuesto elegido: como se empieza por las obras con menor monto pendiente, suben mucho más lento.'
         : 'Cada edificio es un departamento y cada punto son 5 obras paralizadas. Se pintan de ámbar las que se terminan con el presupuesto; las que no tienen saldo registrado nunca cambian.',
       skMoney: selIt && W
         ? { t: `${Mo(selIt.sp)} de ${M(selIt.dd[2])} del dinero pendiente se usaría aquí.`, w: Math.min(100, (selIt.sp / selIt.dd[2]) * 100).toFixed(1) }

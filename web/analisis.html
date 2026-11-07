@@ -4,9 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Obra Paralizada · Análisis</title>
-<meta name="description" content="Causas de paralización, avance físico, tipos de obra, año de inicio, nivel de gobierno y récords de las obras paralizadas.">
+<meta name="description" content="Causas de paralización, avance físico, tipos de obra, año de inicio, nivel de gobierno y datos que destacan de las obras paralizadas.">
 <meta property="og:title" content="Obra Paralizada · Análisis">
-<meta property="og:description" content="Causas de paralización, avance físico, tipos de obra, año de inicio, nivel de gobierno y récords de las obras paralizadas.">
+<meta property="og:description" content="Causas de paralización, avance físico, tipos de obra, año de inicio, nivel de gobierno y datos que destacan de las obras paralizadas.">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link href="vendor/fonts.css" rel="stylesheet">
 <style>
@@ -163,7 +163,7 @@ header nav.sub a{flex:0 0 auto}
 
 <section style="max-width: 1280px; margin: 0 auto; padding: 56px 32px 0">
   <p class="kick">03 · ANÁLISIS</p>
-  <h1 style="margin: 0; font: 800 clamp(48px, 6vw, 84px)/0.92 'Barlow Condensed', sans-serif; max-width: 16ch">Por qué se pararon y qué se dejó de construir</h1>
+  <h1 style="margin: 0; font: 800 clamp(48px, 6vw, 84px)/0.92 'Barlow Condensed', sans-serif; max-width: 16ch">Por qué se paralizaron y qué queda por construir</h1>
 </section>
 
 <section class="sec" id="causas">
@@ -198,14 +198,14 @@ header nav.sub a{flex:0 0 auto}
     </template>
   </div>
   </div>
-  <p style="margin: 20px 0 0; color: #5d6468; max-width: 70ch">Causa declarada por la entidad ante la Contraloría. Por número de obras gana la falta de recursos (625); por dinero, el incumplimiento de contrato: son menos obras, pero mucho más grandes.</p>
+  <p style="margin: 20px 0 0; color: #5d6468; max-width: 70ch">Causa declarada por la entidad ante la Contraloría. Por número de obras, la causa más frecuente es la falta de recursos (625); por monto, el incumplimiento de contrato: son menos obras, pero mucho más grandes.</p>
 </section>
 
 <div class="tape" aria-hidden="true"></div>
 
 <section class="sec" id="avance">
   <p class="kick">El avance</p>
-  <h2 class="h2" style="max-width: 18ch">Mientras más avanzadas, más obras hay paradas</h2>
+  <h2 class="h2" style="max-width: 18ch">Mientras más avanzadas, más obras paralizadas hay</h2>
   <div style="display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end; margin-top: 32px">
     <div style="flex: 1 1 320px; min-width: 0">
       <label for="umbral" style="display: block; font-weight: 600; margin-bottom: 4px">Obras con al menos este avance</label>
@@ -306,7 +306,7 @@ header nav.sub a{flex:0 0 auto}
 <div class="tape" aria-hidden="true"></div>
 
 <section class="sec" id="records">
-  <p class="kick">Los récords</p>
+  <p class="kick">Datos que destacan</p>
   <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 28px">
     <h2 class="h2">Los casos extremos de todo el país</h2>
     <div style="display: flex; gap: 10px; align-items: center">
@@ -376,7 +376,7 @@ class Component extends DCLogic {
     const tMax = Math.max(...ANIOS.map((y) => y[ti]));
     const hot = ANIOS.find((y) => y[0] === this.state.hotY) || ANIOS[15];
     const avMax = Math.max(...AV);
-    const labels = { causas: 'Causas', avance: 'Avance', tipos: 'Tipos de obra', tiempo: 'Año de inicio', quien: 'Quién ejecuta', records: 'Récords' };
+    const labels = { causas: 'Causas', avance: 'Avance', tipos: 'Tipos de obra', tiempo: 'Año de inicio', quien: 'Quién ejecuta', records: 'Destacados' };
     // Obras con avance >= umbral: [umbral, obras, falta ejecutar (M)]
     const TH = [[0,2208,27313.8],[5,2056,23723.9],[10,1996,22424.8],[15,1921,21197.2],[20,1838,18653.3],[25,1766,18311.0],[30,1669,16851.6],[35,1569,15554.5],[40,1472,14521.5],[45,1363,9167.1],[50,1271,7889.8],[55,1154,6545.9],[60,1044,6038.2],[65,919,5745.2],[70,790,5057.3],[75,669,4297.9],[80,551,3473.5],[85,417,3117.1],[90,286,2605.2],[95,158,716.6],[100,23,310.6]];
     const th = TH.find((t) => t[0] === this.state.th) || TH[18];
@@ -385,8 +385,8 @@ class Component extends DCLogic {
     const g = this.state.guess;
     const REC = [
       { k: 'La obra con más dinero pendiente', v: 'S/ 4.8 mil M', n: 'Reubicación del complejo de adiestramiento canino de la DIRANDRO', s: 'Santa Rosa, Lima' },
-      { k: 'La obra más antigua', v: 'Empezó en 2007', n: 'Canal de irrigación Puka Cruz', s: 'Huayllapampa, Recuay, Áncash. Avance 84.9%' },
-      { k: 'Se paró casi terminada', v: '99.9%', n: 'Agua potable y alcantarillado de Quillabamba', s: 'Santa Ana, La Convención, Cusco. Le falta S/ 28.8 M' },
+      { k: 'La obra de mayor antigüedad', v: 'Empezó en 2007', n: 'Canal de irrigación Puka Cruz', s: 'Huayllapampa, Recuay, Áncash. Avance 84.9%' },
+      { k: 'Se paralizó casi terminada', v: '99.9%', n: 'Agua potable y alcantarillado de Quillabamba', s: 'Santa Ana, La Convención, Cusco. Le falta S/ 28.8 M' },
       { k: 'La entidad con más obras paralizadas', v: '63 obras', n: 'Provías Descentralizado', s: 'Gobierno nacional' },
       { k: 'El distrito con más obras paralizadas', v: '47 obras', n: 'Echarate', s: 'La Convención, Cusco' },
       { k: 'La obra con más servicios de control', v: '102 controles', n: 'Represa y canal Pancán', s: 'Succha, Aija, Áncash' },

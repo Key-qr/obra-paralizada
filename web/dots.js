@@ -142,7 +142,7 @@ export function createDots({ canvas, obras, geo, colors, fmtSoles, onHover, onLe
     landTarget = 0.18;
     if (mode === "avance") return layoutHist((o) => o.avance, {
       min: 0, max: 100, bins: 50, ticks: [0, 25, 50, 75, 100], fmt: (t) => `${t}%`,
-      title: "Cada punto es una obra, según cuánto avanzó antes de pararse",
+      title: "Cada punto es una obra, según cuánto avanzó antes de paralizarse",
     });
     if (mode === "tiempo") {
       const ys = dots.map((d) => d.o.ini).filter(Boolean);
